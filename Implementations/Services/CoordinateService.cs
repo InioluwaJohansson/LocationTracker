@@ -1,5 +1,8 @@
 using Home_Security.RealTimeServices;
+using LocationTracker.Entities;
 using LocationTracker.Interfaces.Repositories;
+using LocationTracker.Interfaces.Services;
+using LocationTracker.Models.DTOs;
 
 namespace LocationTracker.Implementations.Services;
 public class CoordinateService : ICoordinateService
@@ -11,155 +14,91 @@ public class CoordinateService : ICoordinateService
         _coordinateRepo = coordinateRepo;
         _realtime = realtime;
     }
-    public async Task<BaseResponse> AddCoordinate(CreateLogDto createLogDto)
+    public async Task<BaseResponse> CreateCoordinate(CreateCoordinateDto coordinate)
     {
-        if (createLogDto != null)
+        var newCoordinate = new Coordinate
         {
-            var log = new Logs()
-            {
-                PersonId = createLogDto.PersonId,
-                TimeOfAction = DateTime.Now,
-                LogDetails = createLogDto.LogDetails,
-                ActionType = createLogDto.ActionType,
-                FacilityType = createLogDto.FacilityType,
-                FacilityId = createLogDto.FacilityId,
-                CreatedOn = DateTime.Now,
-                CreatedBy = createLogDto.PersonId,
-                LastModifiedBy = createLogDto.PersonId,
-                LastModifiedOn = DateTime.Now,
-                IsDeleted = false
-            };
-            log = await _logRepo.Create(log);
-            var logData = await _logRepo.Get(x => x.CreatedOn == log.CreatedOn);
-            await _realtime.NotifyAll("LogCreated", await GetDetails(logData));
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Action Logged Successfully!"
-            };
-        }
-        return new BaseResponse()
-        {
-            Status = false,
-            Message = "Unable To Log Action!"
+            RouteId = coordinate.RouteId,
+            UserId = coordinate.UserId,
+            Latitude = coordinate.Latitude,
+            Longitude = coordinate.Longitude,
+            SequenceIndex = coordinate.SequenceIndex,
+            Altitude = coordinate.Altitude,
+            AccuracyMeters = coordinate.AccuracyMeters,
+            HeadingDegrees = coordinate.HeadingDegrees,
+            SpeedKmH = coordinate.SpeedKmH,
+            Timestamp = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            LastModifiedOn = DateTime.UtcNow,
+            LastModifiedBy = coordinate.UserId,
+            CreatedBy = coordinate.UserId
         };
+        newCoordinate = await _coordinateRepo.Create(newCoordinate);
+        await _realtime.NotifyAll("New Coordinate Added", newCoordinate);
+        return new BaseResponse { Success = true, Message = "Coordinate created successfully." };
     }
-    public async Task<LogsResponseModel> GetLogsByPersonId(int personId, int page = 1, int pageSize = 50)
+    public async Task<BaseResponse> CreateBatchCoordinates(List<CreateCoordinateDto> coordinates)
     {
-        var logs = await _logRepo.GetByExpression(x => x.PersonId == personId && !x.IsDeleted);
-        if (logs != null)
+        foreach (var coordinate in coordinates)
         {
-            var pagedLogs = logs.OrderByDescending(x => x.TimeOfAction).Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            var sortedLogs = new List<GetLogDto>();
-            foreach (var item in pagedLogs)
+            var newCoordinate = new Coordinate
             {
-                var logDetails = await GetDetails(item);
-                sortedLogs.Add(logDetails);
-            }
-            return new LogsResponseModel()
-            {
-                Data = sortedLogs,
-                Status = true,
-                Message = "Logs Retrieved Successfully!"
+                RouteId = coordinate.RouteId,
+                UserId = coordinate.UserId,
+                Latitude = coordinate.Latitude,
+                Longitude = coordinate.Longitude,
+                SequenceIndex = coordinate.SequenceIndex,
+                Altitude = coordinate.Altitude,
+                AccuracyMeters = coordinate.AccuracyMeters,
+                HeadingDegrees = coordinate.HeadingDegrees,
+                SpeedKmH = coordinate.SpeedKmH,
+                Timestamp = DateTimeOffset.UtcNow,
+                IsDeleted = false,
+                LastModifiedOn = DateTime.UtcNow,
+                LastModifiedBy = coordinate.UserId,
+                CreatedBy = coordinate.UserId
             };
+            newCoordinate = await _coordinateRepo.Create(newCoordinate);
         }
-        return new LogsResponseModel()
-        {
-            Status = false,
-            Message = "Unable To Retrieve Logs!"
-        };
+        await _realtime.NotifyAll("New Coordinates Added", coordinates);
+        return new BaseResponse { Success = true, Message = "Batch of coordinates created successfully." };
     }
-    public async Task<LogsResponseModel> GetLogsByDate(DateOnly startDate, DateOnly endDate, int page = 1, int pageSize = 50)
+    public async Task<List<GetCoordinateDto>> GetCoordinatesByJourneyId(int journeyId)
     {
-        var start = startDate.ToDateTime(TimeOnly.MinValue);
-        var end = endDate.ToDateTime(TimeOnly.MaxValue);
-        var logs = await _logRepo.GetByExpression(x => x.TimeOfAction >= start && x.TimeOfAction <= end && !x.IsDeleted);
-        if (logs != null)
+        var coordinates = await _coordinateRepo.GetByJourneyId(journeyId);
+        return coordinates.Select(x => new GetCoordinateDto
         {
-            var pagedLogs = logs.OrderByDescending(x => x.TimeOfAction).Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            var sortedLogs = new List<GetLogDto>();
-            foreach (var item in pagedLogs)
-            {
-                var logDetails = await GetDetails(item);
-                sortedLogs.Add(logDetails);
-            }
-            return new LogsResponseModel()
-            {
-                Data = sortedLogs,
-                Status = true,
-                Message = "Logs Retrieved Successfully!"
-            };
-        }
-        return new LogsResponseModel()
-        {
-            Status = false,
-            Message = "Unable To Retrieve Logs!"
-        };
+            Id = x.Id,
+            UserId = x.UserId,
+            JourneyId = x.JourneyId,
+            RouteId = x.RouteId,
+            SequenceIndex = x.SequenceIndex,
+            Latitude = x.Latitude,
+            Longitude = x.Longitude,
+            Altitude = x.Altitude,
+            AccuracyMeters = x.AccuracyMeters,
+            HeadingDegrees = x.HeadingDegrees,
+            SpeedKmH = x.SpeedKmH,
+            Timestamp = x.Timestamp
+        }).ToList();
     }
-    public async Task<LogsResponseModel> GetAllLogs(int page = 1, int pageSize = 50)
+    public async Task<List<GetCoordinateDto>> GetCoordinatesByRouteId(int routeId)
     {
-        var logs = await _logRepo.GetByExpression(x => x.IsDeleted == false);
-
-        if (logs != null)
+        var coordinates = await _coordinateRepo.GetByRouteId(routeId);
+        return coordinates.Select(x => new GetCoordinateDto
         {
-            var pagedLogs = logs.OrderByDescending(x => x.TimeOfAction).Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            var sortedLogs = new List<GetLogDto>();
-            foreach (var item in pagedLogs)
-            {
-                var logDetails = await GetDetails(item);
-                sortedLogs.Add(logDetails);
-            }
-            return new LogsResponseModel()
-            {
-                Data = sortedLogs,
-                Status = true,
-                Message = "Logs Retrieved Successfully!"
-            };
-        }
-        return new LogsResponseModel()
-        {
-            Status = false,
-            Message = "Unable To Retrieve Logs!"
-        };
-    }
-    public async Task<GetLogDto> GetDetails(Logs log)
-    {
-        var person = await _personRepo.GetById(log.PersonId);
-        GetPersonDto getPerson = new GetPersonDto();
-        if (person != null)
-        {
-            getPerson = new GetPersonDto()
-            {
-                Id = person.Id,
-                PersonId = person.PersonId,
-                Disabled = person.Disabled,
-                GetUserDto = new GetUserDto()
-                {
-                    Id = person.User.Id,
-                    UserName = person.User.UserName,
-                    Role = person.User.UserRole.Role,
-                    RoleName = person.User.UserRole.Role.ToString()
-                },
-                GetPersonDetailsDto = new GetPersonDetailsDto()
-                {
-                    Id = person.PersonDetails.Id,
-                    FirstName = person.PersonDetails.FirstName,
-                    LastName = person.PersonDetails.LastName,
-                    ImageUrl = person.PersonDetails.ImageUrl,
-                    Gender = person.PersonDetails.Gender,
-                }
-            };
-        }
-        return new GetLogDto()
-        {
-            Id = log.Id,
-            PersonId = log.PersonId,
-            TimeOfAction = log.TimeOfAction,
-            LogDetails = log.LogDetails,
-            ActionType = log.ActionType,
-            FacilityId = log.FacilityId ?? 0,
-            FacilityType = log.FacilityType.ToString(),
-            GetPersonDto = getPerson,
-        };
+            Id = x.Id,
+            UserId = x.UserId,
+            JourneyId = x.JourneyId,
+            RouteId = x.RouteId,
+            SequenceIndex = x.SequenceIndex,
+            Latitude = x.Latitude,
+            Longitude = x.Longitude,
+            Altitude = x.Altitude,
+            AccuracyMeters = x.AccuracyMeters,
+            HeadingDegrees = x.HeadingDegrees,
+            SpeedKmH = x.SpeedKmH,
+            Timestamp = x.Timestamp
+        }).ToList();
     }
 }

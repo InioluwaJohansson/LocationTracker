@@ -19,6 +19,14 @@ public class CoordinateRepo : BaseRepository<Coordinate>, ICoordinateRepo
     {
         return await context.Coordinate.Where(x => x.UserId == personId && x.IsDeleted == false).ToListAsync();
     }
+    public async Task<List<Coordinate>> GetByJourneyId(int journeyId)
+    {
+        return await context.Coordinate.Where(x => x.JourneyId == journeyId && x.IsDeleted == false).ToListAsync();
+    }
+    public async Task<List<Coordinate>> GetByRouteId(int routeId)
+    {
+        return await context.Coordinate.Where(x => x.RouteId == routeId && x.IsDeleted == false).ToListAsync();
+    }
     public async Task<List<Coordinate>> List()
     {
         return await context.Coordinate.Where(x => x.IsDeleted == false).ToListAsync();

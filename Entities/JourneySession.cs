@@ -1,5 +1,6 @@
 using LocationTracker.Contracts;
 using LocationTracker.Entities;
+using LocationTracker.Models.Enums;
 namespace LocationTracker.Entities;
 public class JourneySession : AuditableEntity
 {
@@ -9,6 +10,6 @@ public class JourneySession : AuditableEntity
     public float TotalDistanceMeters { get; set; }
     public int TotalDurationSeconds { get; set; }
     public float AverageSpeedKmH { get; set; }
-    public string Status { get; set; } = "Active"; // "Active", "Completed", "Cancelled"
+    public JourneyStatus Status { get; set; }
     public List<Coordinate> Coordinates { get; set; } = new();
 }
