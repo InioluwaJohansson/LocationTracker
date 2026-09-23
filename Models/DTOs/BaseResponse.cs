@@ -12,3 +12,10 @@ public class GetUserDto
     public string RoleName { get; set; }
     public string AuthorizationCode { get; set; }
 }
+public class Credentials
+{
+    public string SecretKey { get; set; }
+    public string Tomen { get; set; }
+    public string Issuer { get; set; }
+    public string Audience { get; set; }
+}
