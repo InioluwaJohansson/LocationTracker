@@ -15,7 +15,7 @@ public class GetUserDto
 public class Credentials
 {
     public string SecretKey { get; set; }
-    public string Tomen { get; set; }
+    public string Token { get; set; }
     public string Issuer { get; set; }
     public string Audience { get; set; }
 }
