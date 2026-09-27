@@ -1,10 +1,14 @@
 using System.Text;
+using Home_Security.RealTimeServices;
+using LocationTracker.Authentication;
+using LocationTracker.BackgroundServices;
 using LocationTracker.Context;
 using LocationTracker.Implementations.Repositories;
 using LocationTracker.Implementations.Services;
 using LocationTracker.Interfaces.Repositories;
 using LocationTracker.Interfaces.Services;
 using LocationTracker.RealTime.Hubs;
+using LocationTracker.RealTimeServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +27,13 @@ builder.Services.AddScoped<ICustomMarkerService, CustomMarkerService>();
 builder.Services.AddScoped<ICoordinateService, CoordinateService>();
 builder.Services.AddScoped<IJourneySessionService, JourneySessionService>();
 builder.Services.AddScoped<IRouteLogService, RouteLogService>();
+
+builder.Services.AddSingleton<IAuthCache, AuthCache>();
+builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
+builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
+
+builder.Services.AddHostedService<StartupInitializer>();
+builder.Services.AddHostedService<LocationTrackerServices>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
