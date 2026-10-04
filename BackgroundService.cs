@@ -33,7 +33,7 @@ public class LocationTrackerServices : BackgroundService
                 using var scope = _serviceScopeFactory.CreateScope();
                 var authControl = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
                 await authControl.GetSigningData();
-                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(9), stoppingToken);
                 await authControl.RefreshAllTokens();
             }
             catch (Exception ex)

@@ -78,6 +78,7 @@ public class JWTAuthentication : IJWTAuthentication
     }
     public async Task RefreshAllTokens()
     {
+        if (_authCache._jwtToken == null) return;
         foreach (var token in _authCache._jwtToken.ToList())
         {
             await RefreshTokenFromExternalApi(token);
@@ -90,9 +91,11 @@ public class JWTAuthentication : IJWTAuthentication
         var url = "https://localhost:7190/Home_Security/User/GetSigningCredentials";
         var response = await client.GetAsync(url);
         response.EnsureSuccessStatusCode();
+        Console.WriteLine($"Response from GetSigningData: {response.StatusCode}");
         var credentials =  await response.Content.ReadFromJsonAsync<Credentials>();
         if (credentials != null)
         {
+            Console.WriteLine($"Retrieved signing credentials: Issuer={credentials.Issuer}, Audience={credentials.Audience}");
             _authCache._credentials.SecretKey = credentials.SecretKey;
             _authCache._credentials.Token = credentials.Token;
             _authCache._credentials.Issuer = credentials.Issuer;
