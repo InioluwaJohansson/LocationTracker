@@ -123,10 +123,10 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
-builder.Services.AddCors(x => x.AddPolicy(appData["AppName"], c =>
-{
-    c.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
-}));
+// builder.Services.AddCors(x => x.AddPolicy(appData["AppName"], c =>
+// {
+//     c.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+// }));
 
 builder.Services.AddCors(options =>
 {

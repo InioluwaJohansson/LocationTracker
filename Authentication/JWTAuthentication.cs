@@ -22,7 +22,7 @@ public class JWTAuthentication : IJWTAuthentication
     public GetUserDto? GetUserFromToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_authCache._credentials.SecretKey ?? "HomeSecurity1234567890");
+        var key = Encoding.UTF8.GetBytes(_authCache._credentials.SecretKey ?? "HomeSecurity1234567890!@#$%^&*()-+_=");
 
         var validationParameters = new TokenValidationParameters
         {
@@ -30,10 +30,8 @@ public class JWTAuthentication : IJWTAuthentication
             ValidateAudience = true,
             ValidIssuer = _authCache._credentials.Issuer ?? "Home_Security",
             ValidAudience = _authCache._credentials.Audience ?? "Home",
-
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
-
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
