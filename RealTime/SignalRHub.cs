@@ -1,20 +1,23 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
+using LocationTracker.Authentication;
 namespace LocationTracker.RealTime.Hubs;
 public class LocationTrackerHub : Hub
 {
-    public LocationTrackerHub()
+    IJWTAuthentication jWTAuthentication;
+    public LocationTrackerHub(IJWTAuthentication jwtAuthentication)
     {
-        
+        jWTAuthentication = jwtAuthentication;
     }
     private static readonly Dictionary<int, HashSet<string>> _connections = new();
     private int GetPersonId()
     {
-        var value = Context.User?.FindFirst("PersonId")?.Value;
-        if (string.IsNullOrEmpty(value))
-            throw new HubException("PersonId claim is missing.");
-        return int.Parse(value);
+        var token = Context.GetHttpContext()?.Request.Query["access_token"].FirstOrDefault();
+        var user = jWTAuthentication.GetUserFromToken(token ?? string.Empty);
+        if (user != null) return user.PersonId;
+        else throw new HubException("Invalid token or user not found.");
+        
     }
     public override async Task OnConnectedAsync()
     {

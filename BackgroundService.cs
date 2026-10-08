@@ -40,7 +40,7 @@ public class LocationTrackerServices : BackgroundService
             {
                 Console.WriteLine($"Background service error: {ex.Message}");
             }
-            await Task.Delay(TimeSpan.FromMinutes(3), stoppingToken);
+            await Task.Delay(TimeSpan.FromHours(23), stoppingToken);
         }
     }
 }

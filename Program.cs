@@ -104,7 +104,7 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddHttpClient();
 
 var appData = builder.Configuration.GetSection("ApplicationDetails");
 builder.Services.AddSwaggerGen(c =>

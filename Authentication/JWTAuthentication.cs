@@ -11,10 +11,12 @@ namespace LocationTracker.Authentication;
 public class JWTAuthentication : IJWTAuthentication
 {
     public IConfiguration _key;
+    public IConfiguration _baseUrl;
     public IAuthCache _authCache;
     public JWTAuthentication(IConfiguration config, IAuthCache authCache)
     {
-        _key = config.GetSection("Jwt");
+        _key = config;
+        _baseUrl = config.GetSection("BaseApp");
         _authCache = authCache;
     }
     public GetUserDto? GetUserFromToken(string token)
@@ -59,7 +61,7 @@ public class JWTAuthentication : IJWTAuthentication
     {
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer",token);
-        var response = await client.GetAsync("https://localhost:7190/Home_Security/User/RefreshToken");
+        var response = await client.PostAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["RefreshTokenUrl"]}", null);
         response.EnsureSuccessStatusCode();        
         if(response.StatusCode == System.Net.HttpStatusCode.OK)
         {
@@ -88,7 +90,7 @@ public class JWTAuthentication : IJWTAuthentication
     {
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "LocationTracker");
-        var url = "https://localhost:7190/Home_Security/User/GetSigningCredentials";
+        var url = $"{_baseUrl["BaseUrl"]}{_baseUrl["SigningUrl"]}";
         var response = await client.GetAsync(url);
         response.EnsureSuccessStatusCode();
         Console.WriteLine($"Response from GetSigningData: {response.StatusCode}");
