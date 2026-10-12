@@ -1,16 +1,19 @@
 using System.Text.Json;
 using LocationTracker.Authentication;
+using LocationTracker.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 [Route("LocationTracker/[controller]")]
 [ApiController]
 public class UserController : Controller
 {
+    ICoordinateService _coordinateService;
     IJWTAuthentication _jwtAuthentication;
     public IConfiguration _baseUrl;
-    public UserController(IJWTAuthentication jwtAuthentication, IConfiguration baseUrl)
+    public UserController(ICoordinateService coordinateService, IJWTAuthentication jwtAuthentication, IConfiguration baseUrl)
     {
         _jwtAuthentication = jwtAuthentication;
+        _coordinateService = coordinateService;
         _baseUrl = baseUrl.GetSection("BaseApp");
     }
     [HttpGet("Login")]
@@ -42,6 +45,7 @@ public class UserController : Controller
     [HttpGet("GetUserLocation")]
     public async Task<IActionResult> GetUserLocation(int userId)
     {
-        return Ok();
+        var data = await _coordinateService.GetUserLastCoordinates(userId);
+        return Ok(data);
     }
 }

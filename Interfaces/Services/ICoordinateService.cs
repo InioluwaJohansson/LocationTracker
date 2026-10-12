@@ -8,4 +8,5 @@ public interface ICoordinateService
     public Task<BaseResponse> CreateCoordinate(CreateCoordinateDto coordinate);
     public Task<BaseResponse> CreateBatchCoordinates(List<CreateCoordinateDto> coordinates);
     public Task<List<GetCoordinateDto>> GetCoordinatesByRouteId(int routeId);
+    public Task<GetCoordinateDto> GetUserLastCoordinates(int userId);
 }

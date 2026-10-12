@@ -101,4 +101,24 @@ public class CoordinateService : ICoordinateService
             Timestamp = x.Timestamp
         }).ToList();
     }
+    public async Task<GetCoordinateDto> GetUserLastCoordinates(int userId)
+    {
+        var x = (await _coordinateRepo.GetByExpression(x => !x.IsDeleted && x.UserId == userId)).LastOrDefault();
+        if(x == null) return null;
+        return new GetCoordinateDto
+        {
+            Id = x.Id,
+            UserId = x.UserId,
+            JourneyId = x.JourneyId,
+            RouteId = x.RouteId,
+            SequenceIndex = x.SequenceIndex,
+            Latitude = x.Latitude,
+            Longitude = x.Longitude,
+            Altitude = x.Altitude,
+            AccuracyMeters = x.AccuracyMeters,
+            HeadingDegrees = x.HeadingDegrees,
+            SpeedKmH = x.SpeedKmH,
+            Timestamp = x.Timestamp
+        };
+    }
 }
