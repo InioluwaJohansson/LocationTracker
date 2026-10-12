@@ -49,7 +49,7 @@ public class JourneySessionService : IJourneySessionService
                 CreatedBy = createJourneySessionDto.UserId
             }).ToList() ?? new List<Coordinate>(),
         };
-        await _journeySessionRepo.Create(newJourneySession);
+        newJourneySession = await _journeySessionRepo.Create(newJourneySession);
         await _realtimeNotificationService.NotifyAll("Journey Session Started", newJourneySession);
         return new BaseResponse 
         { 
@@ -79,9 +79,39 @@ public class JourneySessionService : IJourneySessionService
         await _realtimeNotificationService.NotifyAll("Journey Session Updated", existingJourneySession);
         return new BaseResponse { Success = true, Message = "Journey session updated successfully." };
     }
-    public async Task<List<GetJourneySessionDto>> GetAllJourneySessions()
+    public async Task<GetJourneySessionDto> GetJourneySessionById(int id)
     {
-        var journeySessions = await _journeySessionRepo.List();
+        var journeySessions = await _journeySessionRepo.GetById(id);
+        if (journeySessions == null) return null;
+        return new GetJourneySessionDto
+        {
+            Id = journeySessions.Id,
+            UserId = journeySessions.UserId,
+            StartTime = journeySessions.StartTime,
+            EndTime = journeySessions.EndTime,
+            TotalDistanceMeters = journeySessions.TotalDistanceMeters,
+            TotalDurationSeconds = journeySessions.TotalDurationSeconds,
+            AverageSpeedKmH = journeySessions.AverageSpeedKmH,
+            Status = journeySessions.Status,
+            Coordinates = journeySessions.Coordinates?.Select(c => new GetCoordinateDto
+            {
+                Id = c.Id,
+                RouteId = c.RouteId,
+                UserId = c.UserId,
+                Latitude = c.Latitude,
+                Longitude = c.Longitude,
+                SequenceIndex = c.SequenceIndex,
+                Altitude = c.Altitude,
+                AccuracyMeters = c.AccuracyMeters,
+                HeadingDegrees = c.HeadingDegrees,
+                SpeedKmH = c.SpeedKmH,
+                Timestamp = c.Timestamp
+            }).ToList() ?? new List<GetCoordinateDto>()
+        };
+    }
+    public async Task<List<GetJourneySessionDto>> GetAllJourneySessions(DateTime date)
+    {
+        var journeySessions = (await _journeySessionRepo.List()).Where(x => x.IsDeleted == false && x.CreatedOn.Date >= date.Date && x.CreatedOn.Date <= date.Date.AddDays(1));
         return journeySessions.Select(x => new GetJourneySessionDto
         {
             Id = x.Id,

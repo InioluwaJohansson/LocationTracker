@@ -6,6 +6,7 @@ public interface IJourneySessionService
 {
     public Task<BaseResponse> CreateJourneySession(CreateJourneySessionDto journeySession);
     public Task<BaseResponse> UpdateJourneySession(UpdateJourneySessionDto journeySession);
-    public Task<List<GetJourneySessionDto>> GetAllJourneySessions();
+    public Task<GetJourneySessionDto> GetJourneySessionById(int id);
+    public Task<List<GetJourneySessionDto>> GetAllJourneySessions(DateTime date);
     public Task<BaseResponse> CancelJourneySession(int journeySessionId);
 }

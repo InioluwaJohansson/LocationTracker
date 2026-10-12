@@ -33,8 +33,7 @@ public class CustomMarkerService : ICustomMarkerService
             LastModifiedBy = customMarker.UserId,
             CreatedBy = customMarker.UserId,
         };
-        await _customMarkerRepo.Create(newCustomMarker);
-        await _realTimeNotificationService.NotifyAll("Marker Added", newCustomMarker);
+        newCustomMarker = await _customMarkerRepo.Create(newCustomMarker);
         await _realTimeNotificationService.NotifyAll("Marker Added", newCustomMarker);
 
         return new BaseResponse
@@ -96,6 +95,7 @@ public class CustomMarkerService : ICustomMarkerService
         existingCustomMarker.IsDeleted = true;
         existingCustomMarker.LastModifiedOn = DateTime.UtcNow;
         await _customMarkerRepo.Delete(existingCustomMarker);
+        await _realTimeNotificationService.NotifyAll("Marker Deleted", existingCustomMarker);
         return new BaseResponse { Success = true, Message = "Custom marker deleted successfully." };
     }
 }

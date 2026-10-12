@@ -38,4 +38,10 @@ public class UserController : Controller
         var personIdNames = document.RootElement.GetProperty("personIdNames");
         return Content(personIdNames.GetRawText(),"application/json");
     }
+    [Authorize]
+    [HttpGet("GetUserLocation")]
+    public async Task<IActionResult> GetUserLocation(int userId)
+    {
+        return Ok();
+    }
 }

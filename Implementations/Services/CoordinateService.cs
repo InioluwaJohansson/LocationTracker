@@ -59,8 +59,8 @@ public class CoordinateService : ICoordinateService
                 CreatedBy = coordinate.UserId
             };
             newCoordinate = await _coordinateRepo.Create(newCoordinate);
+            await _realtime.NotifyAll("New Coordinates Added", newCoordinate);
         }
-        await _realtime.NotifyAll("New Coordinates Added", coordinates);
         return new BaseResponse { Success = true, Message = "Batch of coordinates created successfully." };
     }
     public async Task<List<GetCoordinateDto>> GetCoordinatesByJourneyId(int journeyId)

@@ -20,7 +20,6 @@ public class RouteLogService : IRouteLogService
         {
             UserId = routeLog.UserId,
             JourneyId = routeLog.JourneyId,
-            RouteId = routeLog.RouteId,
             OriginName = routeLog.OriginName,
             DestinationName = routeLog.DestinationName,
             TotalDistanceMeters = routeLog.TotalDistanceMeters,
@@ -32,7 +31,7 @@ public class RouteLogService : IRouteLogService
             LastModifiedBy = routeLog.UserId,
             CreatedBy = routeLog.UserId,
         };
-        await _routeLogRepo.Create(newRouteLog);
+        newRouteLog = await _routeLogRepo.Create(newRouteLog);
         await _realTimeNotificationService.NotifyAll("Route Log Added", newRouteLog);
         return new BaseResponse 
         { 
@@ -47,7 +46,7 @@ public class RouteLogService : IRouteLogService
         {
             return new BaseResponse { Success = false, Message = "Route log not found." };
         }
-
+        existingRouteLog.JourneyId = routeLog.JourneyId;
         existingRouteLog.OriginName = routeLog.OriginName;
         existingRouteLog.DestinationName = routeLog.DestinationName;
         existingRouteLog.TotalDistanceMeters = routeLog.TotalDistanceMeters;
@@ -60,9 +59,9 @@ public class RouteLogService : IRouteLogService
         await _realTimeNotificationService.NotifyAll("Route Log Updated", existingRouteLog);
         return new BaseResponse { Success = true, Message = "Route log updated successfully." };
     }
-    public async Task<List<GetRouteLogDto>> GetAllRouteLogs()
+    public async Task<List<GetRouteLogDto>> GetAllRouteLogs(DateTime Date)
     {
-        var routeLogs = await _routeLogRepo.List();
+        var routeLogs = await _routeLogRepo.GetByExpression(x => x.IsDeleted == false && x.CreatedOn.Date >= Date.Date && x.CreatedOn.Date <= Date.Date.AddDays(1));
         return routeLogs.Select(x => new GetRouteLogDto
         {
             Id = x.Id,

@@ -48,13 +48,23 @@ public class JourneySessionController : Controller
         return Ok(journeySession);
     }
     [Authorize]
+    [HttpGet("GetJourneySession")]
+    public async Task<IActionResult> GetJourneySession(int journeyId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var journeySession = await _journeySessionService.GetJourneySessionById(journeyId);
+        return Ok(journeySession);
+    }
+    [Authorize]
     [HttpGet("GetAllJourneySessions")]
     public async Task<IActionResult> GetAllJourneySessions()
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        var journeySession = await _journeySessionService.GetAllJourneySessions();
+        var journeySession = await _journeySessionService.GetAllJourneySessions(DateTime.MaxValue);
         return Ok(journeySession);
     }
     [Authorize]
@@ -64,7 +74,7 @@ public class JourneySessionController : Controller
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        var journeySession = await _journeySessionService.GetAllJourneySessions();
+        var journeySession = await _journeySessionService.GetAllJourneySessions(date ?? DateTime.MaxValue);
         return Ok(journeySession);
     }
 }

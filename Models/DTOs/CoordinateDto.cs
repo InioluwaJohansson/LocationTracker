@@ -7,7 +7,7 @@ public class CreateCoordinateDto
     public int UserId { get; set; }
     [Required]
     public int JourneyId { get; set; }
-    public int? RouteId { get; set; }
+    public int? RouteId { get; set; } = 0;
     public long SequenceIndex { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }

@@ -28,7 +28,7 @@ public class CustomMarkerController : Controller
         return Ok(customMarker);
     }
     [Authorize]
-    [HttpPost("CreateBatchCustomMarkers")]
+    [HttpPost("UpdateCustomMarker")]
     public async Task<IActionResult> CreateBatchCustomMarkers(UpdateCustomMarkerDto updateCustomMarkerDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));

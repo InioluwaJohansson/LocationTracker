@@ -44,7 +44,7 @@ public class RouteLogController : Controller
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        var routeLog = await _routeLogService.GetAllRouteLogs();
+        var routeLog = await _routeLogService.GetAllRouteLogs(DateTime.MaxValue);
         return Ok(routeLog);
     }
     [Authorize]
@@ -64,7 +64,7 @@ public class RouteLogController : Controller
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        var routeLog = await _routeLogService.GetAllRouteLogs();
+        var routeLog = await _routeLogService.GetAllRouteLogs(date ?? DateTime.MaxValue);
         return Ok(routeLog);
     }
 }

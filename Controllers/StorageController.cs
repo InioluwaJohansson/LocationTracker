@@ -14,7 +14,7 @@ public class StorageController : ControllerBase
     [HttpGet("{**path}")]
     public async Task<IActionResult> GetFile(string path)
     {
-        var url = $"{_configuration["BaseUrl"]}{_configuration["StorageUrl"]}/{path}";
+        var url = $"{_configuration["StorageUrl"]}/{path}";
         var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
         if (!response.IsSuccessStatusCode) return StatusCode((int)response.StatusCode);
         var stream = await response.Content.ReadAsStreamAsync();
