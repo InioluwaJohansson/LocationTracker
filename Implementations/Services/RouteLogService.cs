@@ -61,7 +61,7 @@ public class RouteLogService : IRouteLogService
     }
     public async Task<List<GetRouteLogDto>> GetAllRouteLogs(DateTime Date)
     {
-        var routeLogs = await _routeLogRepo.GetByExpression(x => x.IsDeleted == false && x.CreatedOn.Date >= Date.Date && x.CreatedOn.Date <= Date.Date.AddDays(1));
+        var routeLogs = await _routeLogRepo.GetByExpression(x => x.IsDeleted == false && x.CreatedOn.Date >= Date.Date && x.CreatedOn.Date <= DateTime.Today);
         return routeLogs.Select(x => new GetRouteLogDto
         {
             Id = x.Id,

@@ -111,7 +111,7 @@ public class JourneySessionService : IJourneySessionService
     }
     public async Task<List<GetJourneySessionDto>> GetAllJourneySessions(DateTime date)
     {
-        var journeySessions = (await _journeySessionRepo.List()).Where(x => x.IsDeleted == false && x.CreatedOn.Date >= date.Date && x.CreatedOn.Date <= date.Date.AddDays(1));
+        var journeySessions = (await _journeySessionRepo.List()).Where(x => x.IsDeleted == false && x.CreatedOn.Date >= date.Date && x.CreatedOn.Date <= DateTime.Today);
         return journeySessions.Select(x => new GetJourneySessionDto
         {
             Id = x.Id,

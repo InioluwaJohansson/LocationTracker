@@ -64,7 +64,7 @@ public class JourneySessionController : Controller
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        var journeySession = await _journeySessionService.GetAllJourneySessions(DateTime.MaxValue);
+        var journeySession = await _journeySessionService.GetAllJourneySessions(DateTime.MinValue);
         return Ok(journeySession);
     }
     [Authorize]
@@ -74,7 +74,7 @@ public class JourneySessionController : Controller
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        var journeySession = await _journeySessionService.GetAllJourneySessions(date ?? DateTime.MaxValue);
+        var journeySession = await _journeySessionService.GetAllJourneySessions(date ?? DateTime.MinValue);
         return Ok(journeySession);
     }
 }
