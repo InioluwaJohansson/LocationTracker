@@ -5530,11 +5530,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\FUNAAB122\\Documents\\Location Tracker\\LocationTracker\\LocationTracker.csproj",
+      "projectUniqueName": "C:\\Users\\FUNAAB122\\Documents\\Inioluwa Suite\\Suite\\LocationTracker\\LocationTracker.csproj",
       "projectName": "LocationTracker",
-      "projectPath": "C:\\Users\\FUNAAB122\\Documents\\Location Tracker\\LocationTracker\\LocationTracker.csproj",
+      "projectPath": "C:\\Users\\FUNAAB122\\Documents\\Inioluwa Suite\\Suite\\LocationTracker\\LocationTracker.csproj",
       "packagesPath": "C:\\Users\\FUNAAB122\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\FUNAAB122\\Documents\\Location Tracker\\LocationTracker\\obj\\",
+      "outputPath": "C:\\Users\\FUNAAB122\\Documents\\Inioluwa Suite\\Suite\\LocationTracker\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\FUNAAB122\\AppData\\Roaming\\NuGet\\NuGet.Config"
