@@ -3,12 +3,12 @@ public class CreateActionDto
 {
     public string ActionName { get; set; }
     public double DistanceToMarker { get; set; }
-    public bool IsActive { get; set; }
     public int CustomMarkerId { get; set; }
     public List<int> ActionIds { get; set; }
 }
 public class UpdateActionDto
 {
+    public int Id { get; set; }
     public string ActionName { get; set; }
     public double DistanceToMarker { get; set; }
     public int CustomMarkerId { get; set; }
@@ -16,6 +16,7 @@ public class UpdateActionDto
 }
 public class GetActionDto
 {
+    public int Id { get; set; }
     public string ActionName { get; set; }
     public double DistanceToMarker { get; set; }
     public bool IsActive { get; set; }

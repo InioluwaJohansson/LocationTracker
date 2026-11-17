@@ -33,7 +33,7 @@ public class UserController : Controller
         if (user == null) return Unauthorized();
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer",token);
-        var response = await client.PostAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["GetAllUsersUrl"]}", null);
+        var response = await client.PostAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["GetAppNamesIdList"]}", null);
         response.EnsureSuccessStatusCode();
         if (!response.IsSuccessStatusCode) return StatusCode((int)response.StatusCode);
         var json = await response.Content.ReadAsStringAsync();
