@@ -18,11 +18,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<IActionRepo, ActionRepo>();
 builder.Services.AddScoped<ICustomMarkerRepo, CustomMarkerRepo>();
 builder.Services.AddScoped<ICoordinateRepo, CoordinateRepo>();
 builder.Services.AddScoped<IJourneySessionRepo, JourneySessionRepo>();
 builder.Services.AddScoped<IRouteLogRepo, RouteLogRepo>();
 
+builder.Services.AddScoped<IActionService, ActionService>();
 builder.Services.AddScoped<ICustomMarkerService, CustomMarkerService>();
 builder.Services.AddScoped<ICoordinateService, CoordinateService>();
 builder.Services.AddScoped<IJourneySessionService, JourneySessionService>();
