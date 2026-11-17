@@ -152,7 +152,7 @@ public class ActionService : IActionService
         if (!response.IsSuccessStatusCode) return new JsonElement();
         var json = await response.Content.ReadAsStringAsync();
         using var document = JsonDocument.Parse(json);
-        return document.RootElement.GetProperty("personIdNames");
+        return document.RootElement.GetProperty("actionIdNames");
     }
     public async Task<BaseResponse> DeleteAction(int actionId, int personId)
     {
