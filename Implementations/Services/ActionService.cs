@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Home_Security.RealTimeServices;
@@ -5,7 +6,6 @@ using LocationTracker.Entities;
 using LocationTracker.Interfaces.Repositories;
 using LocationTracker.Interfaces.Services;
 using LocationTracker.Models.DTOs;
-using Newtonsoft.Json;
 
 namespace LocationTracker.Implementations.Services;
 
@@ -196,9 +196,9 @@ public class ActionService : IActionService
     private async Task StartActions(string token, List<int> ActionIds)
     {
         using var client = new HttpClient();
-        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var url = $"{_baseUrl["BaseUrl"]}{_baseUrl["StartActions"]}";
-        var response = await client.PostAsync(url, new StringContent(JsonConvert.SerializeObject(ActionIds), Encoding.UTF8, "application/json"));
+        var response = await client.PostAsync(url, new StringContent(JsonSerializer.Serialize(ActionIds), Encoding.UTF8, "application/json"));
         response.EnsureSuccessStatusCode();
         Console.WriteLine($"Response from StartActions: {response.StatusCode}");
     }
