@@ -1,33 +1,45 @@
-public class CreateActionDto
-{
-    public string ActionName { get; set; }
-    public double DistanceToMarker { get; set; }
-    public int CustomMarkerId { get; set; }
-    public List<int> ActionIds { get; set; }
-}
-public class UpdateActionDto
+
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7044.uks1.devtunnels.ms/LocationTracker/Action/CreateAction' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "actionName": "string",
+  "distanceToMarker": 0,
+  "customMarkerId": 0,
+  "actionIds": [
+    0
+  ]
+}' this is the curl to create an action
+curl -X 'PUT' \
+  'https://kv5zhpcr-7044.uks1.devtunnels.ms/LocationTracker/Action/UpdateAction' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": 0,
+  "actionName": "string",
+  "distanceToMarker": 0,
+  "customMarkerId": 0,
+  "actionIds": [
+    0
+  ]
+}' this is the curl ro update an action
+curl -X 'POST' \
+  'https://kv5zhpcr-7044.uks1.devtunnels.ms/LocationTracker/Action/ActivateAction?actionId=1' \
+  -H 'accept: */*' \
+  -d '' this is the curl to activate/stop an action
+curl -X 'GET' \
+  'https://kv5zhpcr-7044.uks1.devtunnels.ms/LocationTracker/Action/GetAllActions' \
+  -H 'accept: */*' this is the curl to get all actions
+curl -X 'GET' \
+  'https://kv5zhpcr-7044.uks1.devtunnels.ms/LocationTracker/Action/GetAllActionNames' \
+  -H 'accept: */*' this is the curl to get all action NAmes along with their Id whis is a list of
+  public class GenericIdNames
 {
     public int Id { get; set; }
-    public string ActionName { get; set; }
-    public double DistanceToMarker { get; set; }
-    public int CustomMarkerId { get; set; }
-    public List<int> ActionIds { get; set; }
-}
-public class GetActionDto
-{
-    public int Id { get; set; }
-    public string ActionName { get; set; }
-    public double DistanceToMarker { get; set; }
-    public bool IsActive { get; set; }
-    public int CustomMarkerId { get; set; }
-    public List<int> ActionIds { get; set; }
-}
-public class ActionResponseModel : BaseResponse
-{
-    public GetActionDto Data { get; set; }
-}
-public class ActionsResponseModel : BaseResponse
-{
-    public ICollection<GetActionDto> Data { get; set; } = new HashSet<GetActionDto>();
-}
-In the logs panel, add a section called actions
+    public string Name { get; set; }
+} the Id must be matted to the ActionIds to get their Names withould showing their Ids this also applies to updating and also when creating an action the Id should be passed into the ActionIds while showing their names
+curl -X 'DELETE' \
+  'https://kv5zhpcr-7044.uks1.devtunnels.ms/LocationTracker/Action/DeleteAction?actionId=1' \
+  -H 'accept: */*' this is the curl to delete an action

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -14,11 +15,13 @@ public class ActionService : IActionService
     IActionRepo _actionRepo;
     IRealtimeNotificationService _realtime;
     public IConfiguration _baseUrl;
-    public ActionService(IActionRepo actionRepo, IRealtimeNotificationService realtime, IConfiguration config)
+    private readonly IHttpClientFactory _httpClientFactory;
+    public ActionService(IActionRepo actionRepo, IRealtimeNotificationService realtime, IConfiguration config, IHttpClientFactory httpClientFactory)
     {
         _actionRepo = actionRepo;
         _realtime = realtime;
         _baseUrl = config.GetSection("BaseApp");
+        _httpClientFactory = httpClientFactory;
     }
     public async Task<BaseResponse> CreateAction(CreateActionDto createActionDto, int personId)
     {
@@ -89,24 +92,27 @@ public class ActionService : IActionService
             else if (action.IsActive == false)
             {
                 action.IsActive = true;
-                await StartActions(token, action.ActionIds);
+                var status = await StartActions(token, action.ActionIds);
+                if (status)
+                {
+                    await _realtime.NotifyAll("ActionActivated", new
+                    {
+                        Id = action.Id,
+                        Status = action.IsActive
+                    });
+                }
             }
             action = await _actionRepo.Update(action);
-            await _realtime.NotifyAll("ActionActivated", new
-            {
-                Id = action.Id,
-                Status = action.IsActive
-            });
             return new BaseResponse()
             {
                 Success = true,
-                Message = "Action Updated"
+                Message = "Action Activated"
             };
         }
         return new BaseResponse()
         {
             Success = false,
-            Message = "Failed to Update Action"
+            Message = "Failed to Activate Action"
         };
     }
     public async Task<ActionResponseModel> GetById(int actionId)
@@ -143,17 +149,6 @@ public class ActionService : IActionService
             Success = false,
         };
     }
-    public async Task<JsonElement> GetActionNames(string token)
-    {
-        using var client = new HttpClient();
-        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer",token);
-        var response = await client.PostAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["GetAppNamesIdList"]}", null);
-        response.EnsureSuccessStatusCode();
-        if (!response.IsSuccessStatusCode) return new JsonElement();
-        var json = await response.Content.ReadAsStringAsync();
-        using var document = JsonDocument.Parse(json);
-        return document.RootElement.GetProperty("actionIdNames");
-    }
     public async Task<BaseResponse> DeleteAction(int actionId, int personId)
     {
         var action = await _actionRepo.Get(x => x.Id == actionId && x.IsDeleted == false);
@@ -164,8 +159,7 @@ public class ActionService : IActionService
             action.LastModifiedBy = personId;
             action.LastModifiedOn = DateTime.UtcNow;
             action = await _actionRepo.Update(action);
-            await _realtime.NotifyAll("ActionDeleted",
-            new
+            await _realtime.NotifyAll("ActionDeleted", new
             {
                 Id = action.Id
             });
@@ -193,13 +187,29 @@ public class ActionService : IActionService
             CustomMarkerId = action.CustomMarkerId
         };
     }
-    private async Task StartActions(string token, List<int> ActionIds)
+    public async Task<JsonElement> GetActionNames(string token)
     {
-        using var client = new HttpClient();
+        var client = _httpClientFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",token);
+        var response = await client.PostAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["GetAppNamesIdList"]}", null);
+        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode) return new JsonElement();
+        var json = await response.Content.ReadAsStringAsync();
+        var document = JsonDocument.Parse(json);
+        Console.WriteLine(JsonSerializer.Deserialize<object>(document.RootElement.GetProperty("actionIdNames").GetRawText()));
+        return document.RootElement.GetProperty("actionIdNames").GetRawText() != null ? document.RootElement.GetProperty("actionIdNames") : new JsonElement();
+    }
+    private async Task<bool> StartActions(string token, List<int> ActionIds)
+    {
+        var client = _httpClientFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        var url = $"{_baseUrl["BaseUrl"]}{_baseUrl["StartActions"]}";
-        var response = await client.PostAsync(url, new StringContent(JsonSerializer.Serialize(ActionIds), Encoding.UTF8, "application/json"));
+        var response = await client.PostAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["StartActions"]}", new StringContent(JsonSerializer.Serialize(ActionIds), Encoding.UTF8, "application/json"));
         response.EnsureSuccessStatusCode();
         Console.WriteLine($"Response from StartActions: {response.StatusCode}");
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            return true;
+        }
+        return false;
     }
 }

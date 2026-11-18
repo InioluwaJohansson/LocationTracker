@@ -22,6 +22,59 @@ namespace LocationTracker.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("LocationTracker.Entities.Actions", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActionIds")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ActionName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CustomMarkerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<double>("DistanceToMarker")
+                        .HasColumnType("double");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomMarkerId");
+
+                    b.ToTable("Action");
+                });
+
             modelBuilder.Entity("LocationTracker.Entities.CompletedRouteLog", b =>
                 {
                     b.Property<int>("Id")
@@ -271,6 +324,17 @@ namespace LocationTracker.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("JourneySession");
+                });
+
+            modelBuilder.Entity("LocationTracker.Entities.Actions", b =>
+                {
+                    b.HasOne("LocationTracker.Entities.CustomMarker", "CustomMarker")
+                        .WithMany()
+                        .HasForeignKey("CustomMarkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CustomMarker");
                 });
 
             modelBuilder.Entity("LocationTracker.Entities.Coordinate", b =>

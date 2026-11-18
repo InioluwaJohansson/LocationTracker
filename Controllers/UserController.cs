@@ -10,16 +10,19 @@ public class UserController : Controller
     ICoordinateService _coordinateService;
     IJWTAuthentication _jwtAuthentication;
     public IConfiguration _baseUrl;
-    public UserController(ICoordinateService coordinateService, IJWTAuthentication jwtAuthentication, IConfiguration baseUrl)
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public UserController(ICoordinateService coordinateService, IJWTAuthentication jwtAuthentication, IConfiguration baseUrl, IHttpClientFactory httpClientFactory)
     {
         _jwtAuthentication = jwtAuthentication;
         _coordinateService = coordinateService;
         _baseUrl = baseUrl.GetSection("BaseApp");
+        _httpClientFactory = httpClientFactory;
     }
     [HttpGet("Login")]
     public async Task<IActionResult> Login(string username, string password)
     {
-        using var client = new HttpClient();
+        var client = _httpClientFactory.CreateClient();
         var response = await client.GetAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["LoginUrl"]}userName={username}&password={password}");
         response.EnsureSuccessStatusCode();
         return Ok(await response.Content.ReadAsStringAsync());

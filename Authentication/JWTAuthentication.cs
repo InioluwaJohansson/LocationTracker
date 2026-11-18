@@ -13,11 +13,13 @@ public class JWTAuthentication : IJWTAuthentication
     public IConfiguration _key;
     public IConfiguration _baseUrl;
     public IAuthCache _authCache;
-    public JWTAuthentication(IConfiguration config, IAuthCache authCache)
+    private readonly IHttpClientFactory _httpClientFactory;
+    public JWTAuthentication(IConfiguration config, IAuthCache authCache, IHttpClientFactory httpClientFactory)
     {
         _key = config;
         _baseUrl = config.GetSection("BaseApp");
         _authCache = authCache;
+        _httpClientFactory = httpClientFactory;
     }
     public GetUserDto? GetUserFromToken(string token)
     {
@@ -57,7 +59,7 @@ public class JWTAuthentication : IJWTAuthentication
     }
     public async Task RefreshTokenFromExternalApi(string token)
     {
-        using var client = new HttpClient();
+        var client = _httpClientFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer",token);
         var response = await client.PostAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["RefreshTokenUrl"]}", null);
         response.EnsureSuccessStatusCode();        
@@ -86,10 +88,9 @@ public class JWTAuthentication : IJWTAuthentication
     }
     public async Task GetSigningData()
     {
-        using var client = new HttpClient();
+        var client = _httpClientFactory.CreateClient("HomeSecurityAPI");
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "LocationTracker");
-        var url = $"{_baseUrl["BaseUrl"]}{_baseUrl["SigningUrl"]}";
-        var response = await client.GetAsync(url);
+        var response = await client.GetAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["SigningUrl"]}");
         response.EnsureSuccessStatusCode();
         Console.WriteLine($"Response from GetSigningData: {response.StatusCode}");
         var credentials =  await response.Content.ReadFromJsonAsync<Credentials>();
