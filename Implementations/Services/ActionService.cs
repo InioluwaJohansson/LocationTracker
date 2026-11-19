@@ -206,10 +206,8 @@ public class ActionService : IActionService
         var response = await client.PostAsync($"{_baseUrl["BaseUrl"]}{_baseUrl["StartActions"]}", new StringContent(JsonSerializer.Serialize(ActionIds), Encoding.UTF8, "application/json"));
         response.EnsureSuccessStatusCode();
         Console.WriteLine($"Response from StartActions: {response.StatusCode}");
-        if (response.StatusCode == HttpStatusCode.OK)
-        {
-            return true;
-        }
+        if (response.StatusCode == HttpStatusCode.OK) return true;
+        else if (response.StatusCode == HttpStatusCode.BadRequest) return false;
         return false;
     }
 }
